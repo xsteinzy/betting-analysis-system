@@ -5,12 +5,9 @@ services:
   # PostgreSQL Database
   - type: pserv
     name: betting-db
-    env: docker
     plan: free  # Change to 'starter' for better performance
     region: oregon
-    databaseName: betting_analysis
-    databaseUser: betting_user
-    # Note: Render will auto-generate a secure password
+    # Note: Render will auto-generate database name, user, and password
 
   # Flask Backend API
   - type: web
