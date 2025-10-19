@@ -1,0 +1,57 @@
+# Render.com Deployment Configuration
+# This file defines all services needed for the betting analysis system
+
+services:
+  # PostgreSQL Database
+  - type: pserv
+    name: betting-db
+    env: docker
+    plan: free  # Change to 'starter' for better performance
+    region: oregon
+    databaseName: betting_analysis
+    databaseUser: betting_user
+    # Note: Render will auto-generate a secure password
+
+  # Flask Backend API
+  - type: web
+    name: betting-api
+    env: python
+    region: oregon
+    plan: free  # Change to 'starter' for better performance
+    buildCommand: "cd betting_backend && pip install -r api/requirements.txt"
+    startCommand: "cd betting_backend/api && gunicorn server:app"
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: PORT
+        value: 5000
+      - key: DATABASE_URL
+        fromDatabase:
+          name: betting-db
+          property: connectionString
+      - key: CORS_ORIGINS
+        value: https://betting-dashboard.onrender.com  # Update with your dashboard URL
+    healthCheckPath: /api/health
+
+  # Next.js Dashboard
+  - type: web
+    name: betting-dashboard
+    env: node
+    region: oregon
+    plan: free  # Change to 'starter' for better performance
+    buildCommand: "cd betting_dashboard && npm install && npm run build"
+    startCommand: "cd betting_dashboard && npm start"
+    envVars:
+      - key: NEXT_PUBLIC_API_URL
+        value: https://betting-api.onrender.com  # Update with your API URL
+      - key: NODE_ENV
+        value: production
+
+# Notes for deployment:
+# 1. Create a Render.com account at https://render.com
+# 2. Connect your GitHub repository
+# 3. This file will be auto-detected by Render
+# 4. Update the service names and URLs as needed
+# 5. The database will be created first, then the API, then the dashboard
+# 6. Make sure to update CORS_ORIGINS in the API to match your dashboard URL
+# 7. Make sure to update NEXT_PUBLIC_API_URL in the dashboard to match your API URL

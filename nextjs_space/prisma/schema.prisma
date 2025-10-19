@@ -1,0 +1,57 @@
+
+generator client {
+    provider = "prisma-client-js"
+    binaryTargets = ["native", "linux-musl-arm64-openssl-3.0.x"]
+    output = "/home/ubuntu/betting_dashboard/nextjs_space/node_modules/.prisma/client"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model Projection {
+  id          String   @id @default(cuid())
+  sport       String   // NFL, NBA
+  playerName  String
+  propType    String   // Points, Rebounds, etc.
+  line        Float
+  projection  Float
+  confidence  String   // High, Medium, Low
+  expectedValue Float
+  date        DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("projections")
+}
+
+model Bet {
+  id          String   @id @default(cuid())
+  playerName  String
+  sport       String
+  propType    String
+  line        Float
+  betAmount   Float
+  result      String?  // Win, Loss, Push, Pending
+  actualValue Float?
+  expectedValue Float
+  confidence  String
+  date        DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("bets")
+}
+
+model Settings {
+  id             String @id @default(cuid())
+  userId         String @unique
+  bankroll       Float  @default(1000)
+  riskTolerance  String @default("Moderate") // Conservative, Moderate, Aggressive
+  theme          String @default("dark")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@map("settings")
+}
